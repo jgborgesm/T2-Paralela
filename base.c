@@ -43,5 +43,4 @@ int main(int argc, char **argv){
         max_min_avg(&serie[i],tam_janela, &max, &min, &media);
         printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
     }
-    
 }
