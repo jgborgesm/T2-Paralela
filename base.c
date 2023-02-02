@@ -44,3 +44,4 @@ int main(int argc, char **argv){
         printf("janela %d - max: %lf, min: %lf, media: %lf\n", i, max, min, media);
     }
 }
+
