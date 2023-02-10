@@ -86,8 +86,8 @@ int main (int argc, char** argv) {
             start = (rank - 1) * (arraySize / num_proc) + arraySize % num_proc;
         else*/
         start = (rank - 1) * (arraySize / (num_proc - 1));
-        end = (rank - 1) * (arraySize / (num_proc - 1)) + windowSize - 1;
-        if (rank == num_proc - 1)
+        end = (rank) * (arraySize / (num_proc - 1)) + windowSize - 1;
+        if (rank == num_proc - 1 || end > arraySize)
             end = arraySize;
 
         /*if (rank == 0)
