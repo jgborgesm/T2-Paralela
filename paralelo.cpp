@@ -4,6 +4,7 @@
 #include <queue>
 #include <mpi.h>
 
+
 using namespace std;
 
 void max_min_avg(double v[], long start, long end, long windowSize, double max, double min, double media) {
@@ -21,8 +22,10 @@ void max_min_avg(double v[], long start, long end, long windowSize, double max, 
     }
     //cout << *m.begin() << ' ' << *m.rbegin() << endl;
 
+    #ifdef PRINT
     cout << "Janela: " << start << "-" << start + windowSize - 1 << endl;
     cout << "Media: " << sum / windowSize << "\nMinimo: " << *m.begin() << "\nMaximo: " << *m.rbegin() << "\n\n";
+    #endif
 
     for (long i = start + windowSize; i < end; i++) {
         m.insert(v[i]);
@@ -31,9 +34,11 @@ void max_min_avg(double v[], long start, long end, long windowSize, double max, 
 
         sum += v[i];
         sum -= v[i - windowSize];
-
+        
+        #ifdef PRINT
         cout << "Janela: " << i - windowSize + 1 << '-' << i << endl;
         cout << "Media: " << sum / windowSize << "\nMinimo: " << *m.begin() << "\nMaximo: " << *m.rbegin() << "\n\n";
+        #endif
     }
 }
 
@@ -76,25 +81,33 @@ int main (int argc, char** argv) {
     cout << '\n';*/
 
     double max,min,media;
+    max = min = media = 0;
     long start, end;
-    if (rank == 0) {
-        max_min_avg(v, 0, arraySize, arraySize, max, min, media);
+    if (num_proc > 1) {
+        
+        if (rank == 0) {
+            max_min_avg(v, 0, arraySize, arraySize, max, min, media);
+        }
+        else {
+            //start = 0;
+            /*if (rank == num_proc -1)
+                start = (rank - 1) * (arraySize / num_proc) + arraySize % num_proc;
+            else*/
+            start = (rank - 1) * (arraySize / (num_proc - 1));
+            end = (rank) * (arraySize / (num_proc - 1)) + windowSize - 1;
+            if (rank == num_proc - 1 || end > arraySize)
+                end = arraySize;
+
+            /*if (rank == 0)
+                max_min_avg(v, 0, end / 2 + windowSize - 1, windowSize, max, min, media);
+            else
+                max_min_avg(v, end / 2, end, windowSize, max, min, media);*/
+            max_min_avg(v, start, end, windowSize ,max, min, media);
+        }
     }
     else {
-        //start = 0;
-        /*if (rank == num_proc -1)
-            start = (rank - 1) * (arraySize / num_proc) + arraySize % num_proc;
-        else*/
-        start = (rank - 1) * (arraySize / (num_proc - 1));
-        end = (rank) * (arraySize / (num_proc - 1)) + windowSize - 1;
-        if (rank == num_proc - 1 || end > arraySize)
-            end = arraySize;
-
-        /*if (rank == 0)
-            max_min_avg(v, 0, end / 2 + windowSize - 1, windowSize, max, min, media);
-        else
-            max_min_avg(v, end / 2, end, windowSize, max, min, media);*/
-        max_min_avg(v, start, end, windowSize ,max, min, media);
+        max_min_avg(v, 0, arraySize, arraySize, max, min, media);
+        max_min_avg(v, 0, arraySize, windowSize, max, min, media);
     }
     MPI_Finalize();
 }
